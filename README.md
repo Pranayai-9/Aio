@@ -101,7 +101,7 @@ The app reads `AIO_*` environment variables, from `.env` with Docker or `server/
 |---|---|---|
 | `AIO_AUTH` | `user:password` to require a login. **Set it before exposing the server beyond localhost.** | none |
 | `AIO_TELEGRAM_TOKEN` | Telegram bot token | none |
-| `AIO_TELEGRAM_USERS` | Comma-separated Telegram user IDs allowed to use the bot | everyone |
+| `AIO_TELEGRAM_USERS` | Comma-separated Telegram user IDs allowed to use the bot. Message the bot once and it replies with your ID. `*` opens it to everyone (not recommended). | nobody |
 | `AIO_COOKIES_FILE` | Netscape `cookies.txt` for sites that need a login (Instagram, some Vimeo and Reddit content) | none |
 | `AIO_PROXY` | Outbound proxy for extraction | none |
 | `AIO_WORKERS` | Downloads processed in parallel | `2` |
@@ -164,6 +164,25 @@ server/   aio-server: web app, HTTP API and Telegram bot
 Aio is for saving content you have the right to keep: your own uploads, Creative Commons and public-domain
 media, or copies for personal offline use where the law allows it. Respect copyright and each platform's terms.
 Run it for yourself; don't operate it as a public service.
+
+You are responsible for what you download with Aio and for complying with the laws and terms that apply to you.
+Aio is not affiliated with, endorsed by or sponsored by YouTube, Instagram, TikTok or any other platform it
+works with; their names are used only to describe compatibility. The software is provided "as is", without
+warranty of any kind, as stated in the [license](LICENSE).
+
+## Privacy
+
+Aio has no accounts, analytics, tracking or telemetry, and sends nothing to the project's authors. It
+connects only to the sites you ask it to download from (and their image servers, for previews), to Telegram
+if you run the bot, and to GitHub once to fetch ffmpeg when none is installed. Two things to keep in mind
+when you host it:
+
+- The server log records every link it downloads. Treat the log as private.
+- A cookies file is a logged-in session for that site, as sensitive as a password. Keep it out of shared folders
+  and version control.
+
+If you let other people use your server, you are responsible for their data under the privacy laws that apply
+to you (such as the GDPR or CCPA).
 
 ## Contributing
 

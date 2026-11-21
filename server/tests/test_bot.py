@@ -39,3 +39,22 @@ def test_youtube_webp_thumbnails_become_jpeg():
     assert _jpeg_thumbnail("https://i.ytimg.com/vi_webp/abc/maxresdefault.webp") == "https://i.ytimg.com/vi/abc/maxresdefault.jpg"
     assert _jpeg_thumbnail("https://example.com/t.jpg") == "https://example.com/t.jpg"
     assert _jpeg_thumbnail(None) is None
+
+
+def test_allowlist_is_private_by_default(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from aio_server.bot import AioBot
+    from aio_server.config import Settings
+
+    def bot_for(users):
+        monkeypatch.setenv("AIO_TELEGRAM_USERS", users)
+        monkeypatch.setenv("AIO_STORAGE_DIR", str(tmp_path))
+        return AioBot(Settings.from_env(), engine=None)
+
+    def update(user_id):
+        return SimpleNamespace(effective_user=SimpleNamespace(id=user_id))
+
+    assert not bot_for("").allowed(update(1))
+    assert bot_for("1, 2").allowed(update(2)) and not bot_for("1,2").allowed(update(3))
+    assert bot_for("*").allowed(update(99))

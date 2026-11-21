@@ -69,7 +69,8 @@ class Gallery:
             command += ["--cookies", self.cookies_file]
         if self.proxy:
             command += ["--proxy", self.proxy]
-        return command + args
+        *options, url = args
+        return [*command, *options, "--", url]  # "--": a link can never be read as an option
 
 
 def platform_name(url: str) -> str:

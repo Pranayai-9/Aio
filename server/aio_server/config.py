@@ -28,13 +28,16 @@ class Settings:
     telegram_token: str = ""
     # "user:password" to require HTTP Basic auth. Set it whenever the server is reachable beyond localhost.
     auth: str = ""
-    # Telegram user IDs allowed to use the bot, comma-separated. Empty: anyone who finds it.
+    # Telegram user IDs allowed to use the bot, comma-separated. Empty: nobody (the bot replies with the
+    # sender's ID so it can be added). "*": anyone who finds the bot, which is rarely what you want.
     telegram_users: frozenset[int] = frozenset()
+    telegram_public: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
         load_env_file(SERVER_DIR / ".env")
         env = os.environ.get
+        users = [u for u in env("AIO_TELEGRAM_USERS", "").replace(" ", "").split(",") if u]
         return cls(
             host=env("AIO_HOST", cls.host),
             port=int(env("AIO_PORT", cls.port)),
@@ -46,7 +49,8 @@ class Settings:
             proxy=env("AIO_PROXY", cls.proxy),
             telegram_token=env("AIO_TELEGRAM_TOKEN", cls.telegram_token),
             auth=env("AIO_AUTH", cls.auth),
-            telegram_users=frozenset(int(u) for u in env("AIO_TELEGRAM_USERS", "").replace(" ", "").split(",") if u),
+            telegram_users=frozenset(int(u) for u in users if u != "*"),
+            telegram_public="*" in users,
         )
 
     @property

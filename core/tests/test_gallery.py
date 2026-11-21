@@ -90,6 +90,22 @@ def test_too_many_images(engine):
         engine.probe("https://example.com/huge")
 
 
+@pytest.mark.parametrize("url", ["--exec=calc", "-o", "file:///etc/passwd", "C:\\secret.txt", "https://"])
+def test_non_links_are_rejected(engine, url):
+    engine.gallery = FakeGallery(error="should not be asked")
+    with pytest.raises(EngineError, match="full link"):
+        engine.probe(url)
+    with pytest.raises(EngineError, match="full link"):
+        engine.download(Request(url), Path("unused"))
+
+
+def test_link_is_never_an_option():
+    from aio_grab.gallery import Gallery
+
+    command = Gallery(5)._command(["--get-urls", "--range", "1-6", "-x"])
+    assert command[-2:] == ["--", "-x"]
+
+
 def test_gallery_helpers():
     assert platform_name("https://www.flickr.com/photos/x") == "Flickr"
     assert _error("[gallery-dl][error] Unsupported URL 'https://x'") == UNSUPPORTED

@@ -76,6 +76,13 @@ class EngineError(Exception):
     """A failure whose message is safe to show to the user."""
 
 
+def check_url(url: str) -> None:
+    """Only full http(s) links go to yt-dlp and gallery-dl, never options or local paths."""
+    parts = urlsplit(url)
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        raise EngineError("Enter a full link starting with http:// or https://")
+
+
 class Engine:
     """Downloads media from YouTube and 1,000+ other sites, and images from galleries.
 
@@ -121,6 +128,7 @@ class Engine:
         The result's "kind" is "media" (one video or track), "post" (several items, downloaded together)
         or "images" (a photo gallery).
         """
+        check_url(url)
         try:
             with yt_dlp.YoutubeDL(self._base_options()) as ydl:
                 raw = self._extract(ydl, url)
@@ -150,6 +158,7 @@ class Engine:
 
         A multi-item post or gallery gives one file per item, or a single ZIP with zip_posts=True.
         """
+        check_url(request.url)
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         report = on_progress or _ignore

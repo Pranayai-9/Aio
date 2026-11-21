@@ -63,6 +63,7 @@ class AioBot:
     def __init__(self, settings: Settings, engine: Engine) -> None:
         self.engine = engine
         self.allowed_users = settings.telegram_users
+        self.public = settings.telegram_public
         # Separate from the web server's staging folder, whose sweeper owns the job folders it finds.
         self.storage = Storage(settings.storage_dir / "telegram", settings.file_ttl_seconds)
         self.storage.sweep(JobStore())  # leftovers from a previous run
@@ -91,12 +92,13 @@ class AioBot:
 
     def allowed(self, update: Update) -> bool:
         user = update.effective_user
-        return not self.allowed_users or (user is not None and user.id in self.allowed_users)
+        return self.public or (user is not None and user.id in self.allowed_users)
 
     async def on_link(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         message = update.effective_message
         if not self.allowed(update):
             user = update.effective_user
+            log.info("Ignored a link from Telegram user %s, who isn't in AIO_TELEGRAM_USERS", user.id if user else "?")
             await message.reply_text(f"This is a private Aio bot. Your Telegram ID is {user.id if user else 'unknown'}.")
             return
         match = URL_PATTERN.search(message.text or message.caption or "")
@@ -411,6 +413,11 @@ def main() -> None:
         raise SystemExit("Set AIO_TELEGRAM_TOKEN (in server/.env) to the token from @BotFather.")
     engine = engine_from(settings)
     engine.ensure_ffmpeg()
+    if settings.telegram_public:
+        log.warning("AIO_TELEGRAM_USERS=*: anyone on Telegram can download through this server and its IP address")
+    elif not settings.telegram_users:
+        log.warning("AIO_TELEGRAM_USERS is empty, so nobody can use the bot yet. Message it once: it replies with "
+                    "your Telegram ID. Add that ID to AIO_TELEGRAM_USERS and restart.")
     bot = AioBot(settings, engine)
     app = bot.build(settings.telegram_token)
     log.info("Aio bot is running. Press Ctrl+C to stop.")

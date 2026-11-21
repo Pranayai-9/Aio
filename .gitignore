@@ -157,3 +157,7 @@ __pycache__/
 # Aio: staged downloads and login cookies
 server/storage/
 cookies*.txt
+
+# Local notes and tool settings
+aio_concept_book.txt
+.claude/
