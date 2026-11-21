@@ -12,6 +12,8 @@ from collections.abc import Callable
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .summary import platform_label
+
 log = logging.getLogger(__name__)
 
 ERROR_LINE = re.compile(r"^\[[^\]]+\]\[error\] (.+)$", re.MULTILINE)
@@ -76,7 +78,7 @@ class Gallery:
 def platform_name(url: str) -> str:
     host = urlsplit(url).hostname or ""
     parts = host.removeprefix("www.").split(".")
-    return parts[-2].capitalize() if len(parts) >= 2 else host
+    return (platform_label(parts[-2].capitalize()) or host) if len(parts) >= 2 else host
 
 
 def _error(stderr: str) -> str | None:

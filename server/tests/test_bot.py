@@ -7,7 +7,7 @@ def row(res, label, size_compatible, codecs=("AV1", "H.264", "VP9")):
     return {"res": res, "label": label, "codecs": list(codecs), "size_compatible": size_compatible}
 
 
-def summary(video, duration=212, platform="Youtube", audio=True):
+def summary(video, duration=212, platform="YouTube", audio=True):
     return {"video": video, "duration": duration, "platform": platform, "audio": {"codec": "Opus"} if audio else None}
 
 

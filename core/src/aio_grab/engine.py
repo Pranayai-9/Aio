@@ -19,7 +19,15 @@ from .ffmpeg import ensure_ffmpeg_on_path
 from .freshness import NO_RUNTIME, UPDATE_HINT, find_js_runtimes, is_stale, is_youtube, ytdlp_age_days
 from .gallery import Gallery, GalleryError, platform_name
 from .request import AUDIO_FORMATS, COVER_ART_AUDIO, Request, Status
-from .summary import post_title, summarize, summarize_gallery, summarize_image, summarize_post, thumbnail
+from .summary import (
+    platform_label,
+    post_title,
+    summarize,
+    summarize_gallery,
+    summarize_image,
+    summarize_post,
+    thumbnail,
+)
 from .ytdlp_log import YtdlpLogger
 
 log = logging.getLogger(__name__)
@@ -196,7 +204,7 @@ class Engine:
             title = post_title(info) if post else info.get("title")
             report(
                 title=title,
-                platform=info.get("extractor_key"),
+                platform=platform_label(info.get("extractor_key")),
                 thumbnail=thumbnail(entries[0]) or thumbnail(info),
                 duration=sum(e.get("duration") or 0 for e in entries) or None,
             )
@@ -222,7 +230,7 @@ class Engine:
     def _download_image(self, info: dict, out_dir: Path, progress: "_ProgressTracker",
                         report: ProgressCallback) -> tuple[list[Path], str | None]:
         """A still image: saved as is, with none of the video remuxing or tagging."""
-        report(title=info.get("title"), platform=info.get("extractor_key"), thumbnail=thumbnail(info) or _image_url(info),
+        report(title=info.get("title"), platform=platform_label(info.get("extractor_key")), thumbnail=thumbnail(info) or _image_url(info),
                status=Status.DOWNLOADING, stage="Downloading image")
         options = self._base_options()
         options.update(outtmpl=str(out_dir / "%(title).90B [%(id)s].%(ext)s"), format="best",

@@ -12,7 +12,7 @@ STALE_DAYS = 30
 JS_RUNTIMES = ("deno", "node", "bun")
 YOUTUBE_HOSTS = ("youtube.com", "youtu.be", "youtube-nocookie.com")
 
-UPDATE_HINT = "Update yt-dlp: pip install -U yt-dlp (Docker: docker compose pull)."
+UPDATE_HINT = "Update yt-dlp: pip install -U yt-dlp. With Docker: docker compose pull."
 NO_RUNTIME = "YouTube needs a JavaScript runtime to download reliably. Install Node.js or Deno and try again."
 
 

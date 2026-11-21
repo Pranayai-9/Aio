@@ -12,7 +12,7 @@ class FakeEngine:
         self.js_runtimes = {"node": {}}
 
     def probe(self, url):
-        return {"kind": "media", "url": url, "title": "Clip", "platform": "Youtube", "uploader": "Someone",
+        return {"kind": "media", "url": url, "title": "Clip", "platform": "YouTube", "uploader": "Someone",
                 "duration": 75, "video": [{"label": "1080p", "codecs": ["VP9"], "hdr": False, "size_sdr": 2_000_000,
                                            "size_compatible": None}],
                 "audio": {"codec": "Opus", "bitrate": 140, "size": 900_000}, "subtitles": [{"code": "en"}]}

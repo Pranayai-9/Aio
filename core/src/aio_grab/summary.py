@@ -12,6 +12,29 @@ SIZE_MODES = {
     "size_compatible": {"codec": "compatible"},
 }
 
+# How platforms write their own names. Keys are lowercase prefixes of yt-dlp's extractor key
+# ("YoutubeTab" -> "youtube") or of a site's domain name ("x.com" -> "x").
+PLATFORM_NAMES = {
+    "youtube": "YouTube", "tiktok": "TikTok", "twitter": "X", "x": "X", "instagram": "Instagram",
+    "facebook": "Facebook", "soundcloud": "SoundCloud", "bandcamp": "Bandcamp", "vimeo": "Vimeo",
+    "reddit": "Reddit", "twitch": "Twitch", "bilibili": "Bilibili", "niconico": "Niconico",
+    "dailymotion": "Dailymotion", "pinterest": "Pinterest", "linkedin": "LinkedIn", "bluesky": "Bluesky",
+    "threads": "Threads", "tumblr": "Tumblr", "deviantart": "DeviantArt", "artstation": "ArtStation",
+    "imgur": "Imgur", "flickr": "Flickr", "vk": "VK", "rumble": "Rumble", "kick": "Kick", "mixcloud": "Mixcloud",
+}
+
+
+def platform_label(key: str | None) -> str | None:
+    """A display name for an extractor key or site name: "Youtube" -> "YouTube". None for the generic extractor."""
+    if not key or key.lower() == "generic":
+        return None
+    lowered = key.lower()
+    for prefix in sorted(PLATFORM_NAMES, key=len, reverse=True):
+        if lowered == prefix or (len(prefix) > 2 and lowered.startswith(prefix)):
+            return PLATFORM_NAMES[prefix]
+    return key
+
+
 CODEC_NAMES = (
     ("avc", "H.264"), ("h264", "H.264"), ("hev", "HEVC"), ("hvc", "HEVC"), ("h265", "HEVC"),
     ("av01", "AV1"), ("vp09", "VP9"), ("vp9", "VP9"), ("vp8", "VP8"),
@@ -80,7 +103,7 @@ def summarize(info: dict) -> dict:
         "url": info.get("webpage_url") or info.get("original_url"),
         "title": info.get("title"),
         "uploader": info.get("uploader") or info.get("channel"),
-        "platform": info.get("extractor_key"),
+        "platform": platform_label(info.get("extractor_key")),
         "thumbnail": info.get("thumbnail"),
         "duration": info.get("duration"),
         "video": rows,
@@ -110,7 +133,7 @@ def summarize_post(info: dict) -> dict:
         "url": info.get("webpage_url") or info.get("original_url"),
         "title": post_title(info),
         "uploader": info.get("uploader") or info.get("channel") or first.get("uploader") or first.get("channel"),
-        "platform": info.get("extractor_key"),
+        "platform": platform_label(info.get("extractor_key")),
         "thumbnail": thumbnail(first) or thumbnail(info),
         "duration": sum(e.get("duration") or 0 for e in entries) or None,
         "items": len(entries),
@@ -147,7 +170,7 @@ def summarize_image(info: dict) -> dict:
     """Probe summary for a single still image that yt-dlp found (e.g. a Wikimedia Commons file page)."""
     formats = info.get("formats") or [info]
     return {
-        **summarize_gallery(info.get("webpage_url") or info.get("original_url"), info.get("extractor_key"),
+        **summarize_gallery(info.get("webpage_url") or info.get("original_url"), platform_label(info.get("extractor_key")),
                             [formats[-1].get("url") or ""]),
         "title": info.get("title"),
         "uploader": info.get("uploader"),

@@ -334,7 +334,7 @@ def build_choices(summary: dict) -> list[tuple[str, dict]]:
             break
         # H.264 plays inline in every Telegram client; AV1/VP9 often don't.
         size = row["size_compatible"]
-        if size is None and "H.264" not in row["codecs"] and summary["platform"] == "Youtube":
+        if size is None and "H.264" not in row["codecs"] and summary["platform"] == "YouTube":
             continue
         if size is not None and size > UPLOAD_LIMIT:
             continue

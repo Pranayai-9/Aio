@@ -142,3 +142,13 @@ def test_audio_postprocessor_chain(engine, audio_format, cover):
     assert keys[0] == "FFmpegExtractAudio"
     assert ("EmbedThumbnail" in keys) is cover
     assert "format_sort" not in options
+
+
+def test_platform_names_are_written_properly():
+    from aio_grab.gallery import platform_name
+    from aio_grab.summary import platform_label
+
+    assert platform_label("Youtube") == "YouTube" and platform_label("YoutubeTab") == "YouTube"
+    assert platform_label("Twitter") == "X" and platform_label("SoundcloudSet") == "SoundCloud"
+    assert platform_label("Generic") is None and platform_label("Odysee") == "Odysee"
+    assert platform_name("https://x.com/a/status/1") == "X" and platform_name("https://www.deviantart.com/a") == "DeviantArt"
