@@ -15,7 +15,7 @@ from .engine import Engine, EngineError, ProgressCallback
 from .freshness import STALE_DAYS, ytdlp_age_days, ytdlp_version
 from .request import AUDIO_FORMATS, CONTAINERS, MAX_RES, VIDEO_CODECS, Request, Status, parse_time
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = [
     "AUDIO_FORMATS",
     "CONTAINERS",
