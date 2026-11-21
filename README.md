@@ -10,11 +10,11 @@ Aio downloads video, audio and images from a link. It works with YouTube and the
 [1,000+ other sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) that yt-dlp supports, and it
 uses gallery-dl for image galleries.
 
-You can use it three ways:
+You can use it in three ways:
 
 - a self-hosted web app, which you can also install on your phone and use from the Share menu,
 - a command-line tool and Python library, `aio-grab` on PyPI,
-- a Telegram bot.
+- an HTTP API, which connects Aio to a chat bot, an automation or your own scripts.
 
 All three use the same library, so they offer the same options.
 
@@ -42,10 +42,6 @@ Then open http://localhost:8000. The image includes ffmpeg and Node.js, which Yo
 To use Aio from your phone, open the page on the phone and choose *Install app* or *Add to Home Screen*. Aio then
 appears in the Share menu of other apps. The phone must reach your server, so set `AIO_AUTH` first
 (see [Configuration](#configuration)).
-
-To run the Telegram bot, add `AIO_TELEGRAM_TOKEN` from [@BotFather](https://t.me/BotFather) to `.env` and run
-`docker compose --profile bot up -d`. The bot answers nobody until you add your Telegram ID to `AIO_TELEGRAM_USERS`.
-Send it a message and it replies with your ID.
 
 ## Command line
 
@@ -88,8 +84,6 @@ The server reads `AIO_*` environment variables from `.env` (Docker) or `server/.
 | Variable | Purpose | Default |
 |---|---|---|
 | `AIO_AUTH` | `user:password` for a login. Set it before other devices can reach the server. | none |
-| `AIO_TELEGRAM_TOKEN` | Telegram bot token | none |
-| `AIO_TELEGRAM_USERS` | Telegram user IDs that can use the bot, comma-separated. `*` allows everyone (not recommended). | nobody |
 | `AIO_COOKIES_FILE` | Netscape `cookies.txt` for content that needs a login | none |
 | `AIO_PROXY` | Proxy for requests to the sites | none |
 | `AIO_WORKERS` | Downloads that run at the same time | `2` |
@@ -100,7 +94,9 @@ The server reads `AIO_*` environment variables from `.env` (Docker) or `server/.
 
 ## HTTP API
 
-The web app uses a small JSON API. You can call it from scripts too. Interactive docs are at `/docs`.
+The web app uses a small JSON API. Use the same API to connect Aio to a chat bot on any platform, to an
+automation tool or to your own scripts. Interactive docs are at `/docs`. If `AIO_AUTH` is set, send the same
+user and password with HTTP Basic authentication.
 
 | Endpoint | Result |
 |---|---|
@@ -133,7 +129,7 @@ platform. Their names only show which sites work. The software comes without war
 ## Privacy
 
 Aio has no analytics or telemetry and sends nothing to its authors. It connects only to the sites you download
-from, to Telegram if you run the bot, and to GitHub once to get ffmpeg if none is installed.
+from, and to GitHub once to get ffmpeg if none is installed.
 
 The server log contains every link that it downloads, so keep the log private. A cookies file gives access to your
 account on that site, so protect it like a password. If other people use your server, you are responsible for
@@ -149,7 +145,7 @@ uv run pytest
 uv run aio-server        # web app on http://127.0.0.1:8000
 ```
 
-`core/` is the `aio-grab` library and CLI. `server/` is the web app, the HTTP API and the Telegram bot.
+`core/` is the `aio-grab` library and CLI. `server/` is the web app and the HTTP API.
 [CONTRIBUTING.md](CONTRIBUTING.md) explains how to report a broken link and how to send a change.
 To report a security problem, see [SECURITY.md](SECURITY.md).
 

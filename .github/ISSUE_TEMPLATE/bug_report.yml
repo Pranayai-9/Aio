@@ -16,7 +16,7 @@ body:
     id: surface
     attributes:
       label: Where
-      options: [Library (Python), CLI (aio-grab), Web app, Telegram bot, Docker]
+      options: [Library (Python), CLI (aio-grab), Web app, HTTP API, Docker]
     validations:
       required: true
   - type: textarea

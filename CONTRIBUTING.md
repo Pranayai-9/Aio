@@ -25,8 +25,8 @@ uv run aio-server        # web app on http://127.0.0.1:8000
 
 The repository is a uv workspace with two packages:
 
-- `core/` is **aio-grab**, the library and CLI. Download logic lives here, so the CLI, web app and bot all behave the same.
-- `server/` is **aio-server**: the HTTP API, web app and Telegram bot. It holds no download logic of its own.
+- `core/` is **aio-grab**, the library and CLI. Download logic lives here, so the CLI, web app and API all behave the same.
+- `server/` is **aio-server**: the HTTP API and web app. It holds no download logic of its own.
 
 ## Guidelines
 

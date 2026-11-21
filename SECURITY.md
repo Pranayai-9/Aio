@@ -17,7 +17,7 @@ release notes unless you'd rather not be.
 
 ## Scope
 
-In scope: the aio-grab library and CLI, the web app and API, the Telegram bot, and the Docker image.
+In scope: the aio-grab library and CLI, the web app and HTTP API, and the Docker image.
 
 Bugs in yt-dlp, gallery-dl or ffmpeg belong to those projects; report them upstream. Aio picks up their
 fixes when you upgrade.
@@ -29,8 +29,8 @@ fixes when you upgrade.
 - **Anyone who can use the web app can make the server fetch any address it can reach**, including services
   on your local network. That's inherent to a downloader. Don't run Aio next to internal services that trust
   their network, and don't share access with people you don't trust.
-- **Keep `AIO_TELEGRAM_USERS` set** to your own Telegram IDs. With `*`, anyone on Telegram can download
-  through your server and its IP address.
+- **If you connect a bot or another service to the API**, let only people you trust use it. Everyone who can
+  use the bot downloads through your server and its IP address.
 - **Protect your cookies file**: it is a logged-in session for that site.
 - Put the web app behind HTTPS (a reverse proxy such as Caddy) when you use it over the internet, because
   Basic auth sends the password with every request.

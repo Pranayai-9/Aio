@@ -1,5 +1,4 @@
 # docker compose up -d             -> web app on http://localhost:8000
-# docker compose --profile bot up -d   -> also the Telegram bot (needs AIO_TELEGRAM_TOKEN in .env)
 services:
   web:
     image: ghcr.io/fonneyx/aio:latest

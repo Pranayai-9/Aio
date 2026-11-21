@@ -11,7 +11,7 @@ Compared with calling yt-dlp directly, aio-grab:
 - reports progress as one percentage across all streams and post-processing,
 - raises errors with messages that you can show to users.
 
-aio-grab is part of [Aio](https://github.com/fonneyx/Aio), which adds a self-hosted web app and a Telegram bot.
+aio-grab is part of [Aio](https://github.com/fonneyx/Aio), which adds a self-hosted web app and an HTTP API.
 
 ```bash
 pip install aio-grab
