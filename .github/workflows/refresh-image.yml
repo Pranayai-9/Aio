@@ -1,0 +1,62 @@
+# Sites change faster than Aio releases. Every week, rebuild the latest release so the Docker image
+# picks up the newest yt-dlp. Only "latest" and the major.minor tag move; exact versions stay as released.
+name: Refresh image
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"  # Mondays, 04:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: docker-image
+  cancel-in-progress: false
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - id: release
+        name: Find the latest release
+        run: echo "tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build with the newest yt-dlp
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          no-cache: true
+          tags: aio:refresh
+          cache-to: type=gha,mode=max
+      - name: Smoke test
+        run: |
+          docker run --rm aio:refresh aio-grab --version
+          docker run --rm aio:refresh python -c "import aio_grab, yt_dlp; print(yt_dlp.version.__version__)"
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/aio
+          tags: |
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.release.outputs.tag }}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

@@ -200,3 +200,18 @@ def test_basic_auth(tmp_path):
         assert client.get("/api/health", headers={"Authorization": f"Basic {wrong}"}).status_code == 401
         good = base64.b64encode(b"me:secret").decode()
         assert client.get("/api/health", headers={"Authorization": f"Basic {good}"}).status_code == 200
+
+
+def test_health_reports_install_problems(tmp_path, monkeypatch):
+    from aio_grab import freshness
+
+    monkeypatch.setattr(freshness, "is_stale", lambda today=None: False)
+    engine = FakeEngine()
+    engine.js_runtimes = {"node": {}}
+    with make_client(tmp_path, engine) as client:
+        health = client.get("/api/health").json()
+        assert health["warnings"] == [] and health["js_runtimes"] == ["node"]
+        assert isinstance(health["yt_dlp_age_days"], int)
+
+        engine.js_runtimes = {}
+        assert "JavaScript runtime" in client.get("/api/health").json()["warnings"][0]

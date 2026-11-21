@@ -157,7 +157,8 @@ server/   aio-server: web app, HTTP API and Telegram bot
 - **Single process.** Jobs live in memory, so a restart forgets them and clears their files.
 - **Posts and short playlists** of up to 20 items are downloaded together. Whole channels and long playlists aren't supported yet.
 - **Some sites need a login** for some content: export your browser's cookies to a `cookies.txt` and set `AIO_COOKIES_FILE`.
-- **When a site breaks**, it's almost always fixed by a newer yt-dlp: `pip install -U aio-grab` or `docker compose pull`.
+- **When a site breaks**, it's almost always fixed by a newer yt-dlp: `pip install -U aio-grab yt-dlp`, or `docker compose pull`
+  (the Docker image is rebuilt with the newest yt-dlp every week). The web app warns you when yt-dlp is over 30 days old.
 
 ## Responsible use
 

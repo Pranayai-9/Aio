@@ -78,6 +78,11 @@
   .engine { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
   .engine::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
   .engine.ready::before { background: var(--ok); box-shadow: 0 0 0 3px rgb(143 214 148 / 0.15); }
+  .engine.warn::before { background: var(--accent); box-shadow: 0 0 0 3px rgb(255 91 31 / 0.15); }
+  .notices { display: grid; gap: 8px; }
+  .notices:empty { display: none; }
+  .notice { margin: 0; padding: 10px 14px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--surface-2); color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .notice code { color: var(--text); white-space: nowrap; }
 
   /* ---- intake ---- */
   .intake { padding: 56px 0 28px; }
@@ -254,6 +259,7 @@
     <a class="brand" href="/" aria-label="Aio home">aio<i></i></a>
     <span class="engine mono" id="engine">connecting</span>
   </header>
+  <div class="notices" id="notices" role="status"></div>
 
   <main>
     <section class="intake">
@@ -407,8 +413,21 @@ const state = {
 
 // ---- engine status ----
 fetch("/api/health").then((r) => r.json()).then((h) => {
-  $("engine").textContent = `yt-dlp ${h.yt_dlp}`;
-  $("engine").classList.add("ready");
+  const warnings = h.warnings || [];
+  $("engine").textContent = `yt-dlp ${h.yt_dlp}` + (warnings.length ? " · needs attention" : "");
+  $("engine").classList.add(warnings.length ? "warn" : "ready");
+  // Commands in a warning ("pip install -U yt-dlp") are shown as code.
+  const command = /((?:pip|docker) [^.()]+?)(?=[.)]| \(|$)/g;
+  $("notices").replaceChildren(...warnings.map((text) => {
+    const p = document.createElement("p");
+    p.className = "notice";
+    text.split(command).forEach((part, i) => {
+      const node = i % 2 ? document.createElement("code") : document.createTextNode(part);
+      if (i % 2) node.textContent = part;
+      p.append(node);
+    });
+    return p;
+  }));
 }).catch(() => { $("engine").textContent = "engine offline"; });
 
 // ---- intake ----

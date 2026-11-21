@@ -12,13 +12,26 @@ import threading
 from pathlib import Path
 
 from .engine import Engine, EngineError, ProgressCallback
+from .freshness import STALE_DAYS, ytdlp_age_days, ytdlp_version
 from .request import AUDIO_FORMATS, CONTAINERS, MAX_RES, VIDEO_CODECS, Request, Status, parse_time
 
 __version__ = "0.1.1"
 __all__ = [
-    "AUDIO_FORMATS", "CONTAINERS", "MAX_RES", "VIDEO_CODECS",
-    "Engine", "EngineError", "ProgressCallback", "Request", "Status",
-    "download", "parse_time", "probe",
+    "AUDIO_FORMATS",
+    "CONTAINERS",
+    "MAX_RES",
+    "STALE_DAYS",
+    "VIDEO_CODECS",
+    "Engine",
+    "EngineError",
+    "ProgressCallback",
+    "Request",
+    "Status",
+    "download",
+    "parse_time",
+    "probe",
+    "ytdlp_age_days",
+    "ytdlp_version",
 ]
 
 _default: Engine | None = None

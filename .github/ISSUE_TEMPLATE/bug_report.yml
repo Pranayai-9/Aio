@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Aio is built on yt-dlp and gallery-dl. If a site recently changed, updating usually fixes it:
-        `pip install -U aio-grab` (or `docker compose pull`).
+        `pip install -U aio-grab yt-dlp` (or `docker compose pull`).
   - type: input
     id: url
     attributes:

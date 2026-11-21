@@ -10,6 +10,7 @@ from pathlib import Path
 
 from . import __version__
 from .engine import Engine, EngineError
+from .freshness import NO_RUNTIME, is_youtube, ytdlp_version
 from .request import AUDIO_FORMATS, CONTAINERS, Request
 
 EPILOG = """examples:
@@ -28,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=EPILOG, formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("urls", nargs="*", metavar="URL", help="links to download")
-    p.add_argument("-V", "--version", action="version", version=f"aio-grab {__version__}")
+    p.add_argument("-V", "--version", action="version", version=f"aio-grab {__version__} (yt-dlp {ytdlp_version()})")
     p.add_argument("-o", "--output", type=Path, default=Path("."), metavar="DIR", help="folder to save into (default: here)")
     p.add_argument("-a", "--batch-file", type=Path, metavar="FILE", help="read links from a file, one per line")
     p.add_argument("-i", "--info", action="store_true", help="show what a link offers instead of downloading")
@@ -87,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     engine = Engine(ffmpeg=args.ffmpeg, cookies_file=args.cookies, proxy=args.proxy)
+    if not engine.js_runtimes and any(is_youtube(r.url) for r in requests):
+        print(f"aio-grab: warning: no JavaScript runtime found. {NO_RUNTIME}", file=sys.stderr)
     failures = 0
     results = []
     for request in requests:

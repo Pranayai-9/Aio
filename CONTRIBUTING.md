@@ -4,7 +4,7 @@ Thanks for helping. Small, focused pull requests are the easiest to review.
 
 ## Reporting a broken link
 
-Most "it doesn't download" reports are fixed by a newer yt-dlp, so first try `pip install -U aio-grab`.
+Most "it doesn't download" reports are fixed by a newer yt-dlp, so first try `pip install -U aio-grab yt-dlp`.
 If it still fails, open an issue with:
 
 - a **public** link that shows the problem (never one that needs your login),

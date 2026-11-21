@@ -26,6 +26,9 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
+    concurrency:
+      group: docker-image  # shared with refresh-image.yml, so two builds never race to push "latest"
+      cancel-in-progress: false
     permissions:
       packages: write
       contents: read

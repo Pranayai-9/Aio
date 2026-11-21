@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import AfterValidator, BaseModel, Field, field_validator, model_validator
 
 import aio_grab
-from aio_grab import Engine, EngineError, Request, Status, parse_time
+from aio_grab import Engine, EngineError, Request, Status, freshness, parse_time, ytdlp_age_days
 
 from . import __version__
 from .auth import add_basic_auth
@@ -125,12 +125,15 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
 
     @app.get("/api/health")
     def health() -> dict:
+        runtimes = getattr(engine, "js_runtimes", {})
         return {
             "status": "ok",
             "version": __version__,
             "aio_grab": aio_grab.__version__,
             "yt_dlp": yt_dlp.version.__version__,
-            "js_runtimes": list(getattr(engine, "js_runtimes", {})),
+            "yt_dlp_age_days": ytdlp_age_days(),
+            "js_runtimes": list(runtimes),
+            "warnings": freshness.warnings(runtimes),
         }
 
     @app.post("/api/probe")

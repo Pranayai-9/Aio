@@ -5,7 +5,6 @@ import itertools
 import logging
 import math
 import re
-import shutil
 import threading
 import time
 import zipfile
@@ -17,6 +16,7 @@ import yt_dlp
 from yt_dlp.utils import DownloadError, download_range_func
 
 from .ffmpeg import ensure_ffmpeg_on_path
+from .freshness import NO_RUNTIME, UPDATE_HINT, find_js_runtimes, is_stale, is_youtube, ytdlp_age_days
 from .gallery import Gallery, GalleryError, platform_name
 from .request import AUDIO_FORMATS, COVER_ART_AUDIO, Request, Status
 from .summary import post_title, summarize, summarize_gallery, summarize_image, summarize_post, thumbnail
@@ -64,6 +64,9 @@ FRIENDLY_ERRORS = (
     ),
 )
 
+# Errors whose cause is already clear, so they get no update or runtime hints.
+KNOWN_CAUSES = frozenset(friendly for _, friendly in FRIENDLY_ERRORS)
+
 # Lowercase substrings of yt-dlp errors that mean "no video here", e.g. a photo-only Instagram post.
 GALLERY_HINTS = ("no video", "no media", "no formats", "nothing to download")
 
@@ -100,7 +103,7 @@ class Engine:
         self.ffmpeg = ffmpeg
         self.fetch_ffmpeg = fetch_ffmpeg
         self.max_post_items = max_post_items
-        self.js_runtimes = {name: {} for name in ("deno", "node", "bun") if shutil.which(name)}
+        self.js_runtimes = find_js_runtimes()
         if not self.js_runtimes:
             log.warning("No JavaScript runtime (deno, node or bun) found; YouTube extraction will fail")
         self.cookies_file = cookies_file
@@ -142,7 +145,7 @@ class Engine:
                     # Processing sorts the formats (worst -> best), which summarize() relies on.
                     info = ydl.process_ie_result(copy.deepcopy(raw), download=False)
                 except DownloadError as e:
-                    raise EngineError(friendly_error(str(e))) from e
+                    raise self._error(e, url) from e
         except EngineError as error:
             if not _may_be_gallery(error):
                 raise
@@ -206,7 +209,7 @@ class Engine:
             with yt_dlp.YoutubeDL(options) as ydl:
                 info = ydl.process_ie_result(info, download=True)
         except DownloadError as e:
-            raise EngineError(friendly_error(str(e))) from e
+            raise self._error(e, request.url) from e
 
         # A failed item in a post is skipped (None entry) rather than failing the whole post.
         done = (info.get("entries") or []) if post else [info]
@@ -241,8 +244,20 @@ class Engine:
             raw = ydl.extract_info(url, download=False, process=False)
             self._check_supported(raw)
         except DownloadError as e:
-            raise EngineError(friendly_error(str(e))) from e
+            raise self._error(e, url) from e
         return raw
+
+    def _error(self, error: Exception, url: str) -> EngineError:
+        """A yt-dlp failure as a user-facing error, with the likely fix when the cause isn't already known."""
+        message = friendly_error(str(error))
+        if message in KNOWN_CAUSES:
+            return EngineError(message)
+        hints = []
+        if is_youtube(url) and not self.js_runtimes:
+            hints.append(NO_RUNTIME)
+        if is_stale():
+            hints.append(f"Your yt-dlp is {ytdlp_age_days()} days old; an update usually fixes this. {UPDATE_HINT}")
+        return EngineError(" ".join([message.rstrip(".") + ".", *hints]) if hints else message)
 
     def _check_supported(self, info: dict) -> None:
         """Reject what can't be captured. Materializes a post's entries (at most max_post_items + 1)."""

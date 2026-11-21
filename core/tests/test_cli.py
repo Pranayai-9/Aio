@@ -9,6 +9,7 @@ class FakeEngine:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.requests = []
+        self.js_runtimes = {"node": {}}
 
     def probe(self, url):
         return {"kind": "media", "url": url, "title": "Clip", "platform": "Youtube", "uploader": "Someone",
@@ -70,3 +71,16 @@ def test_batch_file(fake, tmp_path):
 def test_usage_errors(fake, argv, capsys):
     assert cli.main(argv) == 2
     assert "error" in capsys.readouterr().err
+
+
+def test_warns_without_a_js_runtime_for_youtube(fake, monkeypatch, tmp_path, capsys):
+    def make(**kwargs):
+        fake["engine"] = FakeEngine(**kwargs)
+        fake["engine"].js_runtimes = {}
+        return fake["engine"]
+
+    monkeypatch.setattr(cli, "Engine", make)
+    cli.main(["-o", str(tmp_path), "https://vimeo.com/1"])
+    assert "JavaScript" not in capsys.readouterr().err
+    cli.main(["-o", str(tmp_path), "https://youtu.be/x"])
+    assert "no JavaScript runtime" in capsys.readouterr().err
