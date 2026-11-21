@@ -14,7 +14,7 @@ from pathlib import Path
 from .engine import Engine, EngineError, ProgressCallback
 from .request import AUDIO_FORMATS, CONTAINERS, MAX_RES, VIDEO_CODECS, Request, Status, parse_time
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = [
     "AUDIO_FORMATS", "CONTAINERS", "MAX_RES", "VIDEO_CODECS",
     "Engine", "EngineError", "ProgressCallback", "Request", "Status",
