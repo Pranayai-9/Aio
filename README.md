@@ -1,75 +1,72 @@
-<div align="center">
-
-<img src="server/aio_server/static/icons/icon-192.png" width="96" alt="Aio logo">
+<img src="server/aio_server/static/icons/icon-192.png" width="64" alt="" align="right">
 
 # Aio
 
-**Paste a link, keep the file.** Video, audio and images from YouTube and 1,000+ other sites,<br>
-as a Python library, a command-line tool, and a self-hosted app for your browser, phone and Telegram.
-
 [![CI](https://github.com/fonneyx/Aio/actions/workflows/ci.yml/badge.svg)](https://github.com/fonneyx/Aio/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/aio-grab)](https://pypi.org/project/aio-grab/)
-[![Python](https://img.shields.io/pypi/pyversions/aio-grab)](https://pypi.org/project/aio-grab/)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-</div>
+Aio downloads video, audio and images from a link. It works with YouTube and the
+[1,000+ other sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) that yt-dlp supports, and it
+uses gallery-dl for image galleries.
 
----
+You can use it three ways:
 
-Downloaders usually make you pick: a powerful command line that needs a manual, or a website full of ads that
-breaks every other week. Aio puts the power of [yt-dlp](https://github.com/yt-dlp/yt-dlp),
-[gallery-dl](https://github.com/mikf/gallery-dl) and ffmpeg behind one simple interface, and runs on your own
-machine, so it keeps working and nobody else sees what you save.
+- a self-hosted web app, which you can also install on your phone and use from the Share menu,
+- a command-line tool and Python library, `aio-grab` on PyPI,
+- a Telegram bot.
 
-## What you get
+All three use the same library, so they offer the same options.
 
-| | |
-|---|---|
-| 🎬 **Video up to 4K** | AV1/VP9 for the best picture, or H.264 that plays on every device. HDR, MP4 or MKV, embedded subtitles. |
-| 🎵 **Audio** | MP3 (128–320 kbps), M4A, Opus, FLAC, WAV or the untouched original, with cover art and tags. |
-| 🖼 **Images** | Photo posts, carousels and albums through gallery-dl, when there's no video to take. |
-| ✂️ **Trim and clean up** | Keep just a clip (`--start 1:30 --end 2:00`), or cut sponsor segments with SponsorBlock. |
-| 📏 **See before you save** | Every quality with its codec and exact file size, before anything downloads. |
-| 📱 **Share from your phone** | Install the web app, then tap **Share → Aio** inside TikTok, Instagram or YouTube. |
-| 🤖 **Telegram bot** | Send a link, tap a quality, the file arrives in the chat. Albums for multi-item posts. |
-| 🔒 **Yours** | Self-hosted, no accounts, no tracking. Files are deleted after 24 hours. Optional password. |
+## Features
 
-## Pick your way in
+- Video up to 4K. AV1 or VP9 for the best picture, or H.264 for any device. HDR, MP4 or MKV, embedded subtitles.
+- Audio as MP3, M4A, Opus, FLAC, WAV or the original stream, with cover art and tags.
+- Images from photo posts, carousels and albums.
+- Every quality with its codec and file size, shown before you download.
+- Clips: download only `1:30` to `2:00`, for example.
+- SponsorBlock, to cut sponsor segments from YouTube videos.
+- No accounts and no tracking. The server deletes finished files after 24 hours.
 
-### 1. Self-hosted app (Docker)
+## Quick start
+
+Run the web app with Docker:
 
 ```bash
 git clone https://github.com/fonneyx/Aio.git && cd Aio
 docker compose up -d
 ```
 
-Open http://localhost:8000. Everything is included: ffmpeg, a JavaScript runtime for YouTube, the web app and the API.
+Then open http://localhost:8000. The image includes ffmpeg and Node.js, which YouTube needs.
 
-- **On your phone:** open the page and choose *Add to Home Screen* / *Install app*. Aio then appears in the
-  phone's Share menu. Your phone has to reach the server, so set a password first (see [Configuration](#configuration)).
-- **Telegram bot:** put `AIO_TELEGRAM_TOKEN` (from [@BotFather](https://t.me/BotFather)) in `.env`, then
-  `docker compose --profile bot up -d`.
+To use Aio from your phone, open the page on the phone and choose *Install app* or *Add to Home Screen*. Aio then
+appears in the Share menu of other apps. The phone must reach your server, so set `AIO_AUTH` first
+(see [Configuration](#configuration)).
 
-### 2. Command line
+To run the Telegram bot, add `AIO_TELEGRAM_TOKEN` from [@BotFather](https://t.me/BotFather) to `.env` and run
+`docker compose --profile bot up -d`. The bot answers nobody until you add your Telegram ID to `AIO_TELEGRAM_USERS`.
+Send it a message and it replies with your ID.
+
+## Command line
 
 ```bash
-pip install aio-grab        # or: uv tool install aio-grab / pipx install aio-grab
+pip install aio-grab
 ```
 
 ```bash
-aio-grab https://youtu.be/dQw4w9WgXcQ                       # best video, up to 4K
-aio-grab -q 1080 --compatible URL                           # 1080p H.264, plays everywhere
-aio-grab -x URL                                             # MP3, 320 kbps
-aio-grab -x -f flac URL                                     # lossless audio
-aio-grab --start 1:30 --end 2:00 URL                        # just that clip
-aio-grab -i URL                                             # list qualities and sizes, no download
-aio-grab -a links.txt -o ~/Downloads                        # many links from a file
+aio-grab https://youtu.be/dQw4w9WgXcQ           # best video, up to 4K
+aio-grab -q 1080 --compatible URL               # 1080p H.264, plays on any device
+aio-grab -x URL                                 # MP3, 320 kbps
+aio-grab -x -f flac URL                         # lossless audio
+aio-grab --start 1:30 --end 2:00 URL            # only that part
+aio-grab -i URL                                 # list qualities and sizes, download nothing
+aio-grab -a links.txt -o ~/Downloads            # one link per line
 ```
 
-ffmpeg is used from your PATH; if there is none, a static build is downloaded on first use.
-YouTube also needs a JavaScript runtime on PATH: [Node](https://nodejs.org), [Deno](https://deno.com) or [Bun](https://bun.sh).
+Aio uses the ffmpeg on your PATH. If there is none, it downloads a static build on first use.
+For YouTube, install [Node.js](https://nodejs.org) or [Deno](https://deno.com).
 
-### 3. Python library
+## Python library
 
 ```python
 import aio_grab
@@ -80,118 +77,85 @@ print(info["title"], [row["label"] for row in info["video"]])   # ... ['4K', '14
 files = aio_grab.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="audio", audio_format="mp3")
 ```
 
-Need cookies, a proxy or progress updates? Use an `Engine`. It is thread-safe, so one instance can serve a whole app:
-
-```python
-from aio_grab import Engine, Request
-
-engine = Engine(cookies_file="cookies.txt", proxy="http://proxy:8080")
-request = Request("https://youtu.be/dQw4w9WgXcQ", quality="720", codec="compatible", start="0:30", end="1:00")
-files = engine.download(request, "downloads", on_progress=lambda **p: print(p.get("stage"), p.get("progress")))
-```
-
-See the [library README](core/README.md) for every option.
+For cookies, a proxy or progress updates, create an `Engine`. One `Engine` can run many downloads at the same time.
+The [library README](core/README.md) lists every option.
 
 ## Configuration
 
-The app reads `AIO_*` environment variables, from `.env` with Docker or `server/.env` when run from source.
+The server reads `AIO_*` environment variables from `.env` (Docker) or `server/.env` (from source).
 [`.env.example`](.env.example) lists them all.
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `AIO_AUTH` | `user:password` to require a login. **Set it before exposing the server beyond localhost.** | none |
+| `AIO_AUTH` | `user:password` for a login. Set it before other devices can reach the server. | none |
 | `AIO_TELEGRAM_TOKEN` | Telegram bot token | none |
-| `AIO_TELEGRAM_USERS` | Comma-separated Telegram user IDs allowed to use the bot. Message the bot once and it replies with your ID. `*` opens it to everyone (not recommended). | nobody |
-| `AIO_COOKIES_FILE` | Netscape `cookies.txt` for sites that need a login (Instagram, some Vimeo and Reddit content) | none |
-| `AIO_PROXY` | Outbound proxy for extraction | none |
-| `AIO_WORKERS` | Downloads processed in parallel | `2` |
-| `AIO_FILE_TTL_HOURS` | How long finished files are kept | `24` |
+| `AIO_TELEGRAM_USERS` | Telegram user IDs that can use the bot, comma-separated. `*` allows everyone (not recommended). | nobody |
+| `AIO_COOKIES_FILE` | Netscape `cookies.txt` for content that needs a login | none |
+| `AIO_PROXY` | Proxy for requests to the sites | none |
+| `AIO_WORKERS` | Downloads that run at the same time | `2` |
+| `AIO_FILE_TTL_HOURS` | Hours before a finished file is deleted | `24` |
 | `AIO_HOST`, `AIO_PORT` | Listen address | `127.0.0.1`, `8000` (Docker: `0.0.0.0`) |
-| `AIO_STORAGE_DIR` | Where finished files are staged | `server/storage` (Docker: `/data`) |
-| `AIO_FFMPEG` | ffmpeg binary or folder | PATH, else a static build |
+| `AIO_STORAGE_DIR` | Folder for finished files | `server/storage` (Docker: `/data`) |
+| `AIO_FFMPEG` | ffmpeg binary or folder | PATH, then a static build |
 
 ## HTTP API
 
-The web app is a thin client over a small JSON API you can script against too. Interactive docs live at `/docs`.
+The web app uses a small JSON API. You can call it from scripts too. Interactive docs are at `/docs`.
 
-| | |
+| Endpoint | Result |
 |---|---|
-| `POST /api/probe` `{"url": ...}` | What a link offers: title, thumbnail, every resolution with codec and size, audio, subtitles. `kind` is `media`, `post` (several items) or `images`. |
-| `POST /api/jobs` | Start a download. Same options as the library's `Request`: `kind`, `quality`, `codec`, `hdr`, `container`, `subtitles`, `audio_format`, `audio_bitrate`, `sponsorblock`, `start`, `end`, `precise_trim`. Returns `202` and a job ID. |
-| `GET /api/jobs/{id}` | `status` (`queued`, `downloading`, `processing`, `completed`, `failed`), `stage`, `progress`, `speed`, `eta`, `download_url`, `error`. |
+| `POST /api/probe` `{"url": ...}` | Title, thumbnail, each resolution with codec and size, audio and subtitles. `kind` is `media`, `post` or `images`. |
+| `POST /api/jobs` | Starts a download and returns `202` with a job ID. Takes the same options as the library's `Request`. |
+| `GET /api/jobs/{id}` | `status`, `stage`, `progress`, `speed`, `eta`, `download_url` and `error` |
 | `GET /api/jobs/{id}/file` | The finished file. Posts and galleries come as one ZIP. |
-| `GET /api/health` | Versions of Aio and yt-dlp, and the JavaScript runtimes found. |
+| `GET /api/health` | Versions, the age of yt-dlp, the JavaScript runtimes found, and any warnings |
 
-## Run from source
+## Limitations
 
-Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
-
-```bash
-uv sync --all-packages
-uv run aio-server          # web app on http://127.0.0.1:8000
-uv run aio-bot             # Telegram bot
-uv run aio-grab --help       # CLI
-uv run pytest              # tests
-```
-
-```
-core/     aio-grab: the library and CLI (published to PyPI)
-  src/aio_grab/
-    engine.py    yt-dlp + ffmpeg + gallery-dl: probing, format choice, trimming, progress, friendly errors
-    request.py   Request options and validation
-    summary.py   probe results: qualities, sizes, codecs
-    gallery.py   image galleries through gallery-dl
-    cli.py       the aio-grab command
-server/   aio-server: web app, HTTP API and Telegram bot
-  aio_server/
-    api.py       FastAPI app, request validation, serves the web app
-    bot.py       Telegram bot
-    worker.py    background job pool
-    jobs.py      job store (in memory)
-    storage.py   staging folder and expiry
-    static/      the web app: one HTML file, no build step, installable (PWA)
-```
-
-## Good to know
-
-- **Single process.** Jobs live in memory, so a restart forgets them and clears their files.
-- **Posts and short playlists** of up to 20 items are downloaded together. Whole channels and long playlists aren't supported yet.
-- **Some sites need a login** for some content: export your browser's cookies to a `cookies.txt` and set `AIO_COOKIES_FILE`.
-- **When a site breaks**, it's almost always fixed by a newer yt-dlp: `pip install -U aio-grab yt-dlp`, or `docker compose pull`
-  (the Docker image is rebuilt with the newest yt-dlp every week). The web app warns you when yt-dlp is over 30 days old.
+- Aio downloads posts and playlists of up to 20 items. It does not download whole channels or long playlists yet
+  ([#12](https://github.com/fonneyx/Aio/issues/12)).
+- Jobs are kept in memory. A restart of the server forgets them and deletes their files.
+- Some content needs a login. Export your browser's cookies to `cookies.txt` and set `AIO_COOKIES_FILE`.
+- Sites change often. When a site stops working, update yt-dlp: `pip install -U aio-grab yt-dlp` or
+  `docker compose pull`. The Docker image gets the newest yt-dlp every week, and the web app warns you when
+  yt-dlp is more than 30 days old.
 
 ## Responsible use
 
-Aio is for saving content you have the right to keep: your own uploads, Creative Commons and public-domain
-media, or copies for personal offline use where the law allows it. Respect copyright and each platform's terms.
-Run it for yourself; don't operate it as a public service.
+Use Aio for content that you have the right to keep: your own uploads, Creative Commons and public-domain media,
+or personal copies where the law allows them. Obey copyright law and the terms of each platform. Run Aio for
+yourself, not as a public service.
 
-You are responsible for what you download with Aio and for complying with the laws and terms that apply to you.
-Aio is not affiliated with, endorsed by or sponsored by YouTube, Instagram, TikTok or any other platform it
-works with; their names are used only to describe compatibility. The software is provided "as is", without
-warranty of any kind, as stated in the [license](LICENSE).
+You are responsible for what you download. Aio is not affiliated with YouTube, Instagram, TikTok or any other
+platform. Their names only show which sites work. The software comes without warranty, as the
+[license](LICENSE) states.
 
 ## Privacy
 
-Aio has no accounts, analytics, tracking or telemetry, and sends nothing to the project's authors. It
-connects only to the sites you ask it to download from (and their image servers, for previews), to Telegram
-if you run the bot, and to GitHub once to fetch ffmpeg when none is installed. Two things to keep in mind
-when you host it:
+Aio has no analytics or telemetry and sends nothing to its authors. It connects only to the sites you download
+from, to Telegram if you run the bot, and to GitHub once to get ffmpeg if none is installed.
 
-- The server log records every link it downloads. Treat the log as private.
-- A cookies file is a logged-in session for that site, as sensitive as a password. Keep it out of shared folders
-  and version control.
+The server log contains every link that it downloads, so keep the log private. A cookies file gives access to your
+account on that site, so protect it like a password. If other people use your server, you are responsible for
+their data under the privacy laws that apply to you.
 
-If you let other people use your server, you are responsible for their data under the privacy laws that apply
-to you (such as the GDPR or CCPA).
+## Development
 
-## Contributing
+You need Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
-Bug reports with a public example link are the most helpful thing you can send. See [CONTRIBUTING.md](CONTRIBUTING.md).
+```bash
+uv sync --all-packages
+uv run pytest
+uv run aio-server        # web app on http://127.0.0.1:8000
+```
+
+`core/` is the `aio-grab` library and CLI. `server/` is the web app, the HTTP API and the Telegram bot.
+[CONTRIBUTING.md](CONTRIBUTING.md) explains how to report a broken link and how to send a change.
+To report a security problem, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[GPL-3.0](LICENSE). Aio builds on yt-dlp ([Unlicense](https://github.com/yt-dlp/yt-dlp/blob/master/LICENSE)),
-gallery-dl ([GPL-2.0](https://github.com/mikf/gallery-dl/blob/master/LICENSE), run as a separate process)
-and ffmpeg (LGPL/GPL, a separate program). The Geist fonts in the web app are under the
+[GPL-3.0](LICENSE). Aio uses yt-dlp ([Unlicense](https://github.com/yt-dlp/yt-dlp/blob/master/LICENSE)),
+gallery-dl ([GPL-2.0](https://github.com/mikf/gallery-dl/blob/master/LICENSE), which runs as a separate process)
+and ffmpeg (LGPL/GPL, a separate program). The Geist fonts in the web app use the
 [SIL Open Font License](server/aio_server/static/fonts/OFL.txt).

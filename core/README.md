@@ -1,17 +1,24 @@
 # aio-grab
 
-Download video, audio and images from YouTube and 1,000+ other sites with one call.
-A friendly, typed layer over [yt-dlp](https://github.com/yt-dlp/yt-dlp), [gallery-dl](https://github.com/mikf/gallery-dl)
-and ffmpeg: sensible defaults, sizes before you download, clear error messages, and one progress figure.
+aio-grab is a Python library and command-line tool that downloads video, audio and images from a link.
+It uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube and 1,000+ other sites,
+[gallery-dl](https://github.com/mikf/gallery-dl) for image galleries, and ffmpeg to merge and convert.
 
-Part of [Aio](https://github.com/fonneyx/Aio), which also ships a self-hosted web app and Telegram bot built on this library.
+Compared with calling yt-dlp directly, aio-grab:
+
+- lists each quality with its codec and file size before you download,
+- picks the format from a few plain options (quality, codec, container, audio format),
+- reports progress as one percentage across all streams and post-processing,
+- raises errors with messages that you can show to users.
+
+aio-grab is part of [Aio](https://github.com/fonneyx/Aio), which adds a self-hosted web app and a Telegram bot.
 
 ```bash
 pip install aio-grab
 ```
 
-ffmpeg is taken from your PATH, or a static build is downloaded on first use. YouTube needs a JavaScript runtime on
-PATH ([Node](https://nodejs.org), [Deno](https://deno.com) or [Bun](https://bun.sh)).
+aio-grab uses the ffmpeg on your PATH. If there is none, it downloads a static build on first use.
+For YouTube, install a JavaScript runtime: [Node.js](https://nodejs.org), [Deno](https://deno.com) or [Bun](https://bun.sh).
 
 ## Command line
 
@@ -45,7 +52,7 @@ files = aio_grab.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="aud
 ### Engine
 
 `aio_grab.probe` and `aio_grab.download` use a shared default `Engine`. Create your own for cookies, a proxy or a
-specific ffmpeg. An Engine is thread-safe: one instance can run many downloads in parallel.
+specific ffmpeg. An `Engine` is thread-safe, so one instance can run many downloads at the same time.
 
 ```python
 from aio_grab import Engine, EngineError, Request
@@ -64,7 +71,7 @@ def on_progress(**update):
 try:
     files = engine.download(Request("https://youtu.be/dQw4w9WgXcQ", quality="720"), "downloads", on_progress)
 except EngineError as e:
-    print(e)    # a message meant for people, e.g. "This video is private."
+    print(e)    # for example "This video is private."
 ```
 
 `engine.download(..., zip_posts=True)` returns one ZIP for a multi-item post instead of one file per item.
